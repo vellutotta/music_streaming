@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Il mio Spotify</title>
+</head>
+<body>
+    <h1>Catalogo Musicale</h1>
+    <hr>
+
+    <ul>
+        {% for song in songs %}
+            <li>
+                <strong>{{ song.title }}</strong> - {{ song.artist }} ({{ song.genre.name }})
+                <br>
+                {% if song.audio_file %}
+                    <audio controls src="{{ song.audio_file.url }}"></audio>
+                {% else %}
+                    <p>Nessun audio disponibile per questa canzone.</p>
+                {% endif %}
+                <br><br>
+            </li>
+        {% empty %}
+            <p>Non ci sono ancora canzoni nel database.</p>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>
