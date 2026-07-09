@@ -78,5 +78,5 @@ Seguire questi passaggi per scaricare ed eseguire il progetto in locale:
 
 1. **Clonare il repository GitHub:**
    ```bash
-   git clone [INSERISCI IL LINK DEL TUO GITHUB]
+   git clone https://github.com/vellutotta/music_streaming.git
    cd music_streaming
