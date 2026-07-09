@@ -7,7 +7,7 @@
 ## 🛠️ Specifiche del Progetto
 * **Tipo di Progetto Scelto:** Full-Stack Web Application
 * **Framework Utilizzato:** Django (Python)
-* **Link del Deployment Online:** [INSERISCI QUI IL LINK DEL SITO DI RENDER/PYTHONANYWHERE]
+* **Link del Deployment Online:** https://vellutotta.eu.pythonanywhere.com/
 
 ---
 
