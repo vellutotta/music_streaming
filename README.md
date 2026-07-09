@@ -49,7 +49,7 @@ Per valutare rapidamente le funzionalità e i permessi del progetto, si consigli
 1. **Test Utente Visitatore (Permessi limitati):**
    * Aprire l'applicazione in una finestra in incognito senza fare il login.
    * Navigare la Home e cliccare sul tasto "Play" di un brano per testare l'ascolto libero.
-   * *Verifica Permessi:* Notare che il link alle "Playlist" non è presente e provando ad accedere manualmente a `/playlists/` si viene reindirizzati al Login.
+   * *Verifica Permessi:* Notare che il link alle "Playlist" non è presente.
 
 2. **Test Utente Premium (CRUD e Player Continuo):**
    * Effettuare il login con le credenziali di `user_demo`.
