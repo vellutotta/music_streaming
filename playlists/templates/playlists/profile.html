@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+{% load static %}
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Il mio Profilo</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-welcome">
+            Benvenuto, <strong><a href="{% url 'user-profile' %}" style="color: #00d2ff; text-decoration: none;">{{ user.username }}</a></strong>!
+        </div>
+        <div>
+            <a href="{% url 'playlist-list' %}" style="text-decoration: none; font-size: 24px;">🏠</a>
+        </div>
+    </div>
+
+    <div class="profile-container">
+        <h1>Profilo di {{ user.username }}</h1>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+
+        <hr class="profile-divider">
+
+        {% if profile %}
+            <p><strong>Genere musicale preferito:</strong> {{ profile.favorite_genre }}</p>
+            <p><strong>Biografia:</strong> {{ profile.bio }}</p>
+        {% else %}
+            <p><em>Non hai ancora aggiunto informazioni (bio, genere) dal pannello Admin.</em></p>
+        {% endif %}
+
+        <hr class="profile-divider">
+
+        <h2>Le tue Playlist ({{ user_playlists.count }})</h2>
+        {% if user_playlists %}
+            <ul class="playlist-list">
+                {% for playlist in user_playlists %}
+                    <li><strong>{{ playlist.name }}</strong> - Contiene {{ playlist.songs.count }} brani</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Non hai ancora creato nessuna playlist.</p>
+        {% endif %}
+    </div>
+
+</body>
+</html>

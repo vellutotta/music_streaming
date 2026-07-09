@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+{% load static %}
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Elimina Playlist</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-welcome">
+            Elimina Playlist - <strong>{{ user.username }}</strong>
+        </div>
+        <div>
+            <a href="{% url 'playlist-list' %}" style="text-decoration: none; font-size: 24px;">🏠</a>
+        </div>
+    </div>
+
+    <div class="profile-container" style="border: 1px solid #ff4a4a;">
+        <h1 style="color: #ff4a4a;">Sei sicuro di voler eliminare questa playlist?</h1>
+        <p style="margin: 20px 0; font-size: 16px;">
+            Stai per eliminare definitivamente la playlist <strong>"{{ object.name }}"</strong>. Questa azione non può essere annullata.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-action btn-delete">Sì, elimina definitivamente</button>
+            <a href="{% url 'playlist-list' %}" class="btn-action btn-cancel">Annulla</a>
+        </form>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ playlist.name }} - Dettaglio Playlist</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="playlist-body">
+
+<div class="navbar">
+    <div class="nav-welcome">
+        Playlist di <strong>{{ playlist.user.username }}</strong>
+    </div>
+    <a href="/" style="font-size: 24px; text-decoration: none; margin: 0 20px;" title="Torna alla Home">🏠</a>
+    <div class="nav-actions" style="margin-left: auto;">
+        <a href="{% url 'playlist-list' %}" class="nav-link">Torna alle Playlist</a>
+    </div>
+</div>
+
+<div class="detail-container">
+
+    <div class="playlist-header-banner">
+        <div class="detail-cover-wrapper">
+            <img src="https://placehold.co/400x400/181818/833ab4?text={{ playlist.name }}" alt="Cover Playlist" class="detail-cover">
+        </div>
+
+        <div class="detail-meta">
+            <span class="meta-type">PLAYLIST</span>
+            <h1 class="detail-title">{{ playlist.name }}</h1>
+            <p class="detail-description">
+                Aggiornata oggi • <strong>{{ playlist.user.username }}</strong> • {{ playlist.songs.count }} brani
+            </p>
+
+            <button class="btn-play" onclick="playSong(0)">▶ Riproduci tutto</button>
+        </div>
+    </div>
+
+    <div class="songs-table-container">
+        <table class="songs-table">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">#</th>
+                    <th>Brano</th>
+                    <th>Artista</th>
+                    <th>Album</th>
+                    <th style="text-align: right; padding-right: 20px;">Durata</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for song in playlist.songs.all %}
+                <tr class="track-item"
+                    data-src="{% if song.audio_file %}{{ song.audio_file.url }}{% endif %}"
+                    data-title="{{ song.title|escapejs }}"
+                    onclick="playSong({{ forloop.counter0 }})"
+                    style="cursor: pointer;"
+                    title="Clicca per ascoltare">
+
+                    <td>{{ forloop.counter }}</td>
+                    <td class="song-name-td">{{ song.title }}</td>
+                    <td>{{ song.artist }}</td>
+                    <td>{{ song.album|default:"Singolo" }}</td>
+                    <td style="text-align: right; padding-right: 20px;">{{ song.duration }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #b3b3b3; padding: 40px; font-style: italic;">
+                        Questa playlist è vuota. Aggiungi delle canzoni!
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<div id="audio-player-container" style="display: none; position: fixed; bottom: 0; left: 0; width: 100%; background-color: #000000; padding: 12px 0; z-index: 1000; border-top: 1px solid #111111; box-sizing: border-box;">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 35px;">
+
+        <span id="player-song-title" style="color: #00a8e8; font-weight: bold; font-size: 15px; font-family: system-ui, -apple-system, sans-serif;"></span>
+
+        <div style="background-color: #141414; border-radius: 4px; padding: 2px 10px; display: flex; align-items: center;">
+            <audio id="main-audio" controls style="width: 460px; height: 36px;">
+                <source src="" type="audio/mpeg">
+                Il tuo browser non supporta l'elemento audio.
+            </audio>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    const tracks = document.querySelectorAll('.track-item');
+    const audioPlayer = document.getElementById('main-audio');
+    const titleElement = document.getElementById('player-song-title');
+    const playerContainer = document.getElementById('audio-player-container');
+
+    let currentIndex = 0;
+
+
+    function playSong(index) {
+
+        if (tracks.length === 0) {
+            alert("La playlist è vuota!");
+            return;
+        }
+
+
+        if (index >= tracks.length) {
+            titleElement.textContent = "Playlist terminata 🏁";
+            return;
+        }
+
+        currentIndex = index;
+        const track = tracks[currentIndex];
+        const audioUrl = track.getAttribute('data-src');
+        const songTitle = track.getAttribute('data-title');
+
+
+        if (!audioUrl || audioUrl === 'None' || audioUrl === '') {
+            console.log("Audio non trovato per: " + songTitle + ". Passo al prossimo.");
+            // Salta automaticamente alla prossima canzone
+            playSong(currentIndex + 1);
+            return;
+        }
+
+
+        playerContainer.style.display = 'block';
+
+
+        titleElement.textContent = songTitle;
+        audioPlayer.src = audioUrl;
+
+
+        audioPlayer.play();
+    }
+
+
+    audioPlayer.addEventListener('ended', function() {
+        playSong(currentIndex + 1);
+    });
+</script>
+</body>
+</html>

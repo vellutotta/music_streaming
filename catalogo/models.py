@@ -13,6 +13,8 @@ class Song(models.Model):
     artist = models.CharField(max_length=100)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
+    duration = models.CharField(max_length=10, default="0:00", help_text="Formato MM:SS (es. 3:45)")
+
     audio_file = models.FileField(upload_to='songs/', null=True, blank=True)
 
     def __str__(self):

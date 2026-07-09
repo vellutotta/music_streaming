@@ -1,29 +1,286 @@
+
 <!DOCTYPE html>
+{% load static %}
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <title>Il mio Spotify</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <h1>Catalogo Musicale</h1>
-    <hr>
 
-    <ul>
-        {% for song in songs %}
-            <li>
-                <strong>{{ song.title }}</strong> - {{ song.artist }} ({{ song.genre.name }})
-                <br>
-                {% if song.audio_file %}
-                    <audio controls src="{{ song.audio_file.url }}"></audio>
-                {% else %}
-                    <p>Nessun audio disponibile per questa canzone.</p>
-                {% endif %}
-                <br><br>
-            </li>
-        {% empty %}
-            <p>Non ci sono ancora canzoni nel database.</p>
+<div class="navbar">
+
+    <div class="nav-welcome">
+        {% if user.is_authenticated %}
+            Benvenuto, <strong><a href="{% url 'user-profile' %}" style="color: #00d2ff; text-decoration: none;">{{ user.username }}</a></strong>!
+        {% else %}
+            Benvenuto, <strong>Ascoltatore!</strong>
+        {% endif %}
+    </div>
+
+    <a href="?" style="font-size: 24px; text-decoration: none; margin: 0 20px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Torna alla Home">
+    🏠
+    </a>
+
+    <div class="nav-search-container">
+    <form method="GET" action="" style="width: 100%; display: flex;">
+        <input
+            type="text"
+            class="search-input"
+            name="q"
+            value="{{ query }}"
+            placeholder="🔍 Cerca brani, artisti, generi..."
+        >
+    </form>
+</div>
+
+    <div class="nav-actions">
+        {% if user.is_authenticated %}
+            <a href="/playlists/" class="nav-link">Vai alle mie Playlist</a>
+
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-logout">Esci</button>
+            </form>
+        {% else %}
+            <a href="/accounts/login/" class="btn-premium">Accedi a Premium</a>
+        {% endif %}
+    </div>
+
+</div>
+
+     {% if query %}
+    <div style="padding: 20px 0;">
+        <h2 class="section-title">Risultati della ricerca per "{{ query }}"</h2>
+        {% if search_results %}
+            <div class="search-grid">
+                {% for song in search_results %}
+                <div class="uscita-card" onclick="playSong('{{ song.title }}', '{% if song.audio_file %}{{ song.audio_file.url }}{% endif %}')">
+                    <img src="https://placehold.co/300x300/181818/00b4d8?text=Cover" class="uscita-cover">
+                    <div class="uscita-title">{{ song.title }}</div>
+                    <div class="uscita-artist">{{ song.artist }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="color: #b3b3b3; font-style: italic;">Nessun brano trovato.</p>
+        {% endif %}
+    </div>
+
+{% else %}
+
+
+<h1>Novità</h1>
+
+
+<div class="carousel-wrapper">
+
+    <button class="scroll-arrow left-arrow" onclick="scorriIndietro()">&#10094;</button>
+
+    <div class="novita-carousel" id="novitaCarousel">
+        {% for song in songs|slice:":5" %}
+        <div class="large-card" onclick="playSong('{{ song.title }}', '{% if song.audio_file %}{{ song.audio_file.url }}{% endif %}')">
+            <img src="https://placehold.co/600x337/181818/00b4d8?text=Novità" alt="Cover" class="song-cover-large">
+            <div class="song-title-large">{{ song.title }}</div>
+            <div class="song-artist-large">{{ song.artist }} • {{ song.genre }}</div>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
+
+    <button class="scroll-arrow right-arrow" onclick="scorriAvanti()">&#10095;</button>
+
+</div>
+
+<h2 class="section-title">I brani del momento <span class="arrow-title">&#10095;</span></h2>
+
+<div class="brani-grid">
+    {% for song in songs|slice:"5:17" %}
+    <div class="brano-item" onclick="playSong('{{ song.title }}', '{% if song.audio_file %}{{ song.audio_file.url }}{% endif %}')">
+
+        <img src="https://placehold.co/150x150/181818/00b4d8?text=Cover" alt="Cover" class="brano-cover">
+
+        <div class="brano-info">
+            <div class="brano-title">{{ song.title }}</div>
+            <div class="brano-artist">{{ song.artist }}</div>
+        </div>
+
+        <div class="brano-options" onclick="event.stopPropagation();">
+            <button class="dots-btn" onclick="toggleMenu('menu-{{ song.id }}')">&#8230;</button>
+
+            <div class="dropdown-menu" id="menu-{{ song.id }}">
+                <button onclick="copiaLink('{% if song.audio_file %}{{ song.audio_file.url }}{% endif %}')">Copia link</button>
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+
+<h2 class="section-title">Uscite recenti <span class="arrow-title">&#10095;</span></h2>
+
+<div class="carousel-wrapper">
+
+    <button class="scroll-arrow left-arrow" onclick="scorriUscite(-1)">&#10094;</button>
+
+    <div class="uscite-carousel" id="usciteCarousel">
+        {% for song in songs|slice:":15" %}
+        <div class="uscita-card" onclick="playSong('{{ song.title }}', '{% if song.audio_file %}{{ song.audio_file.url }}{% endif %}')">
+            <img src="https://placehold.co/300x300/181818/00b4d8?text=Album" alt="Cover" class="uscita-cover">
+
+            <div class="uscita-title">{{ song.title }}</div>
+            <div class="uscita-artist">{{ song.artist }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <button class="scroll-arrow right-arrow" onclick="scorriUscite(1)">&#10095;</button>
+
+</div>
+<h2 class="section-title">L'estate è qui <span class="arrow-title">&#10095;</span></h2>
+
+<div class="carousel-wrapper">
+
+    <button class="scroll-arrow left-arrow" onclick="scorriEstate(-1)">&#10094;</button>
+
+    <div class="uscite-carousel" id="estateCarousel">
+
+        {% for song in songs|slice:"15:30" %}
+        <div class="uscita-card" onclick="playSong('{{ song.title }}', '{% if song.audio_file %}{{ song.audio_file.url }}{% endif %}')">
+            <img src="https://placehold.co/300x300/181818/ff9f1c?text=Estate" alt="Cover" class="uscita-cover">
+            <div class="uscita-title">{{ song.title }}</div>
+            <div class="uscita-artist">{{ song.artist }}</div>
+        </div>
+        {% endfor %}
+
+        {% for song in songs|slice:":6" %}
+        <div class="uscita-card" onclick="playSong('{{ song.title }}', '{% if song.audio_file %}{{ song.audio_file.url }}{% endif %}')">
+            <img src="https://placehold.co/300x300/181818/ff9f1c?text=Estate" alt="Cover" class="uscita-cover">
+            <div class="uscita-title">{{ song.title }}</div>
+            <div class="uscita-artist">{{ song.artist }}</div>
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <button class="scroll-arrow right-arrow" onclick="scorriEstate(1)">&#10095;</button>
+
+</div>
+
+{% endif %}
+
+
+<div class="bottom-player" id="globalPlayer">
+    <div class="now-playing-info" id="playerTitle">Nessun brano in riproduzione</div>
+
+    <audio id="mainAudioControl" controls>
+        <source src="" type="audio/mpeg">
+        Il tuo browser non supporta l'elemento audio.
+    </audio>
+</div>
+
+<script>
+    function playSong(titoloBrano, urlAudio) {
+
+        const player = document.getElementById('globalPlayer');
+        const audioControl = document.getElementById('mainAudioControl');
+        const titleText = document.getElementById('playerTitle');
+
+
+        titleText.innerText = titoloBrano;
+        audioControl.src = urlAudio;
+
+
+        player.classList.add('active');
+
+
+        audioControl.play();
+    }
+</script>
+
+<script>
+
+    function scorriAvanti() {
+        const carosello = document.getElementById('novitaCarousel');
+        carosello.scrollBy({ left: 400, behavior: 'smooth' });
+    }
+
+    function scorriIndietro() {
+        const carosello = document.getElementById('novitaCarousel');
+        carosello.scrollBy({ left: -400, behavior: 'smooth' });
+    }
+
+
+
+function toggleMenu(menuId) {
+
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        if (menu.id !== menuId) {
+            menu.classList.remove('show');
+        }
+    });
+
+
+    const menu = document.getElementById(menuId);
+    menu.classList.toggle('show');
+}
+
+
+function copiaLink(urlRelativo) {
+
+    const linkCompleto = window.location.origin + urlRelativo;
+
+    navigator.clipboard.writeText(linkCompleto).then(() => {
+        alert("Link del brano copiato negli appunti!");
+
+
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.classList.remove('show');
+        });
+    }).catch(err => {
+        console.error('Errore durante la copia: ', err);
+        alert("Impossibile copiare il link.");
+    });
+}
+
+
+window.onclick = function(event) {
+    if (!event.target.matches('.dots-btn')) {
+        document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+            menu.classList.remove('show');
+        });
+    }
+}
+
+    function scorriUscite(direzione) {
+    const carosello = document.getElementById('usciteCarousel');
+    const primaCard = carosello.querySelector('.uscita-card');
+
+    if (primaCard) {
+
+        const larghezzaSingoloElemento = primaCard.offsetWidth + 20;
+
+        const spostamento = larghezzaSingoloElemento * 3 * direzione;
+
+        carosello.scrollBy({ left: spostamento, behavior: 'smooth' });
+    }
+}
+
+
+
+function scorriEstate(direzione) {
+    const carosello = document.getElementById('estateCarousel');
+    const primaCard = carosello.querySelector('.uscita-card');
+
+    if (primaCard) {
+        const larghezzaSingoloElemento = primaCard.offsetWidth + 20;
+        const spostamento = larghezzaSingoloElemento * 3 * direzione;
+
+        carosello.scrollBy({ left: spostamento, behavior: 'smooth' });
+    }
+}
+
+</script>
 
 </body>
 </html>

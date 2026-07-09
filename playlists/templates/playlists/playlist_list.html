@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Le mie Playlist - Il mio Spotify</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="playlist-body">
+
+<div class="navbar">
+
+    <div class="nav-welcome">
+        {% if user.is_authenticated %}
+            Benvenuto, <strong><a href="{% url 'user-profile' %}" style="color: #00d2ff; text-decoration: none;">{{ user.username }}</a></strong>!
+        {% else %}
+            Benvenuto, <strong>Ascoltatore!</strong>
+        {% endif %}
+    </div>
+
+    <a href="/" style="font-size: 24px; text-decoration: none; margin: 0 20px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Torna alla Home">
+    🏠
+    </a>
+
+    <div class="nav-actions" style="margin-left: auto;">
+        <a href="/" class="nav-link">Torna al Catalogo</a>
+
+        {% if user.is_authenticated %}
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-logout">Esci</button>
+            </form>
+        {% endif %}
+    </div>
+
+</div>
+
+<div class="playlist-page-container">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 class="page-title" style="margin: 0;">Le tue Playlist</h1>
+        <a href="{% url 'playlist-create' %}" class="btn-action btn-save" style="text-decoration: none;">+ Crea Nuova Playlist</a>
+    </div>
+
+    <div class="playlist-grid">
+
+        {% for playlist in playlists %}
+
+        <div class="playlist-card">
+
+            <a href="{% url 'playlist_detail' playlist.id %}" style="text-decoration: none; color: inherit; display: block;">
+                <div class="playlist-cover-wrapper">
+                    <img src="https://placehold.co/300x300/181818/833ab4?text=Playlist" alt="Cover Playlist" class="playlist-cover">
+                </div>
+                <div class="playlist-info">
+                    <div class="playlist-title">{{ playlist.name }}</div>
+                    <div class="playlist-owner">Di {{ playlist.user.username }}</div>
+                </div>
+            </a>
+
+            <div style="display: flex; justify-content: space-around; padding: 12px 10px; border-top: 1px solid #282828;">
+                <a href="{% url 'playlist-edit' playlist.id %}" style="color: #00d2ff; text-decoration: none; font-size: 14px;">✏️ Modifica</a>
+                <a href="{% url 'playlist-delete' playlist.id %}" style="color: #ff4a4a; text-decoration: none; font-size: 14px;">🗑️ Elimina</a>
+            </div>
+
+        </div>
+
+        {% empty %}
+            <p style="color: #b3b3b3; font-style: italic; grid-column: 1/-1;">Non hai ancora creato nessuna playlist.</p>
+        {% endfor %}
+
+    </div>
+</div>
+
+</body>
+</html>

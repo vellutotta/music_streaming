@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+{% load static %}
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if object %}Modifica{% else %}Nuova{% endif %} Playlist</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-welcome">
+            Gestione Playlist - <strong>{{ user.username }}</strong>
+        </div>
+        <div>
+            <a href="{% url 'playlist-list' %}" style="text-decoration: none; font-size: 24px;">🏠</a>
+        </div>
+    </div>
+
+    <div class="profile-container">
+        <h1>{% if object %}Modifica la playlist: {{ object.name }}{% else %}Crea una nuova Playlist{% endif %}</h1>
+
+        <form method="post" style="margin-top: 20px;">
+            {% csrf_token %}
+
+            <div style="margin-bottom: 20px;">
+                <label for="id_name" style="display: block; margin-bottom: 10px; font-weight: bold;">Nome della Playlist:</label>
+                {{ form.name }}
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label for="id_songs" style="display: block; margin-bottom: 10px; font-weight: bold;">Seleziona le Canzoni:</label>
+                {{ form.songs }}
+
+            </div>
+
+            <div style="margin-top: 30px;">
+                <button type="submit" class="btn-action btn-save">Salva Playlist</button>
+                <a href="{% url 'playlist-list' %}" class="btn-action btn-cancel">Annulla</a>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>
